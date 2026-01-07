@@ -1,8 +1,6 @@
 use crate::github::GitHubClient;
 use anyhow::{Result, anyhow};
 use octocrab::models::Repository;
-use std::sync::Arc;
-use tokio::sync::Semaphore;
 
 #[derive(Debug, Clone)]
 pub struct ForkInfo {
@@ -26,15 +24,13 @@ impl ForkInfo {
 #[derive(Clone)]
 pub struct ForkAnalyzer {
     client: GitHubClient,
-    semaphore: Arc<Semaphore>,
     max_branches: usize,
 }
 
 impl ForkAnalyzer {
-    pub fn new(client: GitHubClient, semaphore: Arc<Semaphore>, max_branches: usize) -> Self {
+    pub fn new(client: GitHubClient, max_branches: usize) -> Self {
         Self { 
             client,
-            semaphore,
             max_branches,
         }
     }
@@ -47,8 +43,8 @@ impl ForkAnalyzer {
             .ok_or_else(|| anyhow!("Fork repository missing owner information"))?;
         let repo_name = &repo.name;
         
-        let repo = self.client.get_repo(owner, repo_name, &self.semaphore).await?;
-        let branches = self.client.list_branches(owner, repo_name, &self.semaphore).await?;
+        let repo = self.client.get_repo(owner, repo_name).await?;
+        let branches = self.client.list_branches(owner, repo_name).await?;
 
         if branches.is_empty() {
             return Ok(ForkInfo {
@@ -87,7 +83,6 @@ impl ForkAnalyzer {
 
         for branch in branches {
             let client = self.client.clone();
-            let semaphore = self.semaphore.clone();
             let parent_owner = parent_owner.to_string();
             let parent_name = parent_name.to_string();
             let owner = owner.to_string();
@@ -101,7 +96,6 @@ impl ForkAnalyzer {
                         &parent_name,
                         &branch_name,
                         &format!("{}:{}", owner, branch_name),
-                        &semaphore,
                     )
                     .await
             });

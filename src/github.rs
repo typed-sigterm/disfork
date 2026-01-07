@@ -8,6 +8,7 @@ use tokio::sync::Semaphore;
 #[derive(Debug, Clone)]
 pub struct GitHubClient {
     pub octocrab: Octocrab,
+    semaphore: Arc<Semaphore>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -100,10 +101,11 @@ impl GitHubClient {
         }
     }
 
-    pub fn new(token: String) -> Result<Self> {
+    pub fn new(token: String, parallel: usize) -> Result<Self> {
         let octocrab = Octocrab::builder().personal_token(token).build()?;
+        let semaphore = Arc::new(Semaphore::new(parallel));
 
-        Ok(Self { octocrab })
+        Ok(Self { octocrab, semaphore })
     }
 
     pub async fn current_user(&self) -> Result<String> {
@@ -172,19 +174,19 @@ impl GitHubClient {
         Ok(repos)
     }
 
-    pub async fn get_repo(&self, owner: &str, repo: &str, semaphore: &Arc<Semaphore>) -> Result<Repository> {
-        let _permit = semaphore.acquire().await?;
+    pub async fn get_repo(&self, owner: &str, repo: &str) -> Result<Repository> {
+        let _permit = self.semaphore.acquire().await?;
         let repo = self.octocrab.repos(owner, repo).get().await?;
         Ok(repo)
     }
 
-    pub async fn list_branches(&self, owner: &str, repo: &str, semaphore: &Arc<Semaphore>) -> Result<Vec<Branch>> {
+    pub async fn list_branches(&self, owner: &str, repo: &str) -> Result<Vec<Branch>> {
         let mut branches = Vec::new();
         let mut page = 1u32;
 
         loop {
             // Acquire permit per page to ensure fair distribution of HTTP requests
-            let _permit = semaphore.acquire().await?;
+            let _permit = self.semaphore.acquire().await?;
             let page_data: Page<Branch> = self
                 .octocrab
                 .repos(owner, repo)
@@ -212,9 +214,8 @@ impl GitHubClient {
         repo: &str,
         base: &str,
         head: &str,
-        semaphore: &Arc<Semaphore>,
     ) -> Result<i64> {
-        let _permit = semaphore.acquire().await?;
+        let _permit = self.semaphore.acquire().await?;
         let url = format!("/repos/{}/{}/compare/{}...{}", owner, repo, base, head);
 
         #[derive(Deserialize)]
