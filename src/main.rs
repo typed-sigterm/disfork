@@ -3,12 +3,10 @@ mod cli;
 mod github;
 
 use analyzer::ForkAnalyzer;
-use anyhow::{Context, Result, anyhow};
+use anyhow::{Context, Result};
 use clap::Parser;
 use cli::CliInterface;
 use github::GitHubClient;
-use std::sync::Arc;
-use tokio::sync::Semaphore;
 
 #[derive(Parser, Debug)]
 #[command(name = "DisFork")]
@@ -36,9 +34,13 @@ struct Args {
     #[arg(long)]
     auto: bool,
 
-    /// Number of parallel fetching tasks
-    #[arg(long, default_value_t = 6)]
+    /// Number of parallel HTTP requests
+    #[arg(long, default_value_t = 8)]
     parallel: usize,
+
+    /// Skip analyzing repos with more than this many branches
+    #[arg(long, default_value_t = 20)]
+    max_branches: usize,
 
     /// Don't actually delete anything
     #[arg(long)]
@@ -95,7 +97,7 @@ async fn main() -> Result<()> {
         token
     };
 
-    let client = GitHubClient::new(token).context("Failed to create GitHub client")?;
+    let client = GitHubClient::new(token, args.parallel).context("Failed to create GitHub client")?;
     let target_account = if let Some(account) = args.account {
         account
     } else {
@@ -119,22 +121,16 @@ async fn main() -> Result<()> {
 
     spinner.finish_with_message(format!("Found {} fork repositories", forks.len()));
 
-    let analyzer = ForkAnalyzer::new(client.clone());
+    let analyzer = ForkAnalyzer::new(client.clone(), args.max_branches);
     let pb = cli.create_progress_bar(forks.len() as u64, "Analyzing")?;
 
-    let semaphore = Arc::new(Semaphore::new(args.parallel));
     let mut tasks = tokio::task::JoinSet::new();
 
     for fork in forks {
         let analyzer = analyzer.clone();
         let pb = pb.clone();
-        let sem = semaphore.clone();
 
         tasks.spawn(async move {
-            let _permit = sem
-                .acquire()
-                .await
-                .map_err(|_| anyhow!("Semaphore closed while analyzing repositories"))?;
             let result = analyzer.analyze_fork(fork).await;
             pb.inc(1);
             result
