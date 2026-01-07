@@ -114,19 +114,19 @@ impl ForkAnalyzer {
                 Ok(ahead_by) => {
                     if ahead_by > 0 {
                         has_commits_ahead = true;
-                        // We can break early, but we need to abort remaining tasks
-                        tasks.abort_all();
                         break;
                     }
                 }
                 Err(_) => {
                     // Branch doesn't exist in upstream, consider it as having independent commits
                     has_commits_ahead = true;
-                    tasks.abort_all();
                     break;
                 }
             }
         }
+
+        // Abort any remaining tasks to avoid unnecessary API calls
+        tasks.abort_all();
 
         if has_commits_ahead {
             Ok(ForkInfo {

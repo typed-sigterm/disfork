@@ -183,6 +183,7 @@ impl GitHubClient {
         let mut page = 1u32;
 
         loop {
+            // Acquire permit per page to ensure fair distribution of HTTP requests
             let _permit = semaphore.acquire().await?;
             let page_data: Page<Branch> = self
                 .octocrab
