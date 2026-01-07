@@ -2,6 +2,8 @@ use anyhow::Result;
 use octocrab::models::{Repository, repos::Branch};
 use octocrab::{Octocrab, Page};
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
+use tokio::sync::Semaphore;
 
 #[derive(Debug, Clone)]
 pub struct GitHubClient {
@@ -170,16 +172,18 @@ impl GitHubClient {
         Ok(repos)
     }
 
-    pub async fn get_repo(&self, owner: &str, repo: &str) -> Result<Repository> {
+    pub async fn get_repo(&self, owner: &str, repo: &str, semaphore: &Arc<Semaphore>) -> Result<Repository> {
+        let _permit = semaphore.acquire().await?;
         let repo = self.octocrab.repos(owner, repo).get().await?;
         Ok(repo)
     }
 
-    pub async fn list_branches(&self, owner: &str, repo: &str) -> Result<Vec<Branch>> {
+    pub async fn list_branches(&self, owner: &str, repo: &str, semaphore: &Arc<Semaphore>) -> Result<Vec<Branch>> {
         let mut branches = Vec::new();
         let mut page = 1u32;
 
         loop {
+            let _permit = semaphore.acquire().await?;
             let page_data: Page<Branch> = self
                 .octocrab
                 .repos(owner, repo)
@@ -207,7 +211,9 @@ impl GitHubClient {
         repo: &str,
         base: &str,
         head: &str,
+        semaphore: &Arc<Semaphore>,
     ) -> Result<i64> {
+        let _permit = semaphore.acquire().await?;
         let url = format!("/repos/{}/{}/compare/{}...{}", owner, repo, base, head);
 
         #[derive(Deserialize)]
