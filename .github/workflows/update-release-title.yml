@@ -26,6 +26,9 @@ jobs:
           
           # Extract current announcement_title and modify it
           # The format should be "DisFork v{VERSION}" instead of "{VERSION} (DATE)"
+          # Assumption: The original title has the version as the first space-separated token
+          # Examples: "0.1.0 (2026-01-06)" -> "DisFork v0.1.0"
+          #           "1.0.0-alpha.1 (2026-01-06)" -> "DisFork v1.0.0-alpha.1"
           jq '.announcement_title as $title |
               if $title then
                 # Extract version from the title (removes date part if present)
