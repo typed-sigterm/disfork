@@ -31,7 +31,7 @@ jobs:
                 # Extract version from the title (removes date part if present)
                 ($title | split(" ")[0]) as $version |
                 # Validate that the version looks like a semantic version
-                if ($version | test("^[0-9]+\\.[0-9]+\\.[0-9]+")) then
+                if ($version | test("^[0-9]+\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*)?(\\+[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*)?$")) then
                   .announcement_title = "DisFork v\($version)"
                 else
                   # If version doesn't match expected format, log a warning but don't fail

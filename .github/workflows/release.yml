@@ -184,6 +184,7 @@ jobs:
   build-global-artifacts:
     needs:
       - plan
+      - custom-update-release-title
       - build-local-artifacts
     runs-on: "ubuntu-22.04"
     env:
