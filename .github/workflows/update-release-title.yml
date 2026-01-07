@@ -27,7 +27,13 @@ jobs:
               if $title then
                 # Extract version from the title (removes date part if present)
                 ($title | split(" ")[0]) as $version |
-                .announcement_title = "DisFork v\($version)"
+                # Validate that the version looks like a semantic version
+                if ($version | test("^[0-9]+\\.[0-9]+\\.[0-9]+")) then
+                  .announcement_title = "DisFork v\($version)"
+                else
+                  # If version doesn't match expected format, log a warning but don't fail
+                  . | . + {_warning: "Could not parse version from title: \($title)"}
+                end
               else
                 .
               end' plan-dist-manifest.json > plan-dist-manifest-updated.json
@@ -38,6 +44,14 @@ jobs:
           # Show the change
           echo "Updated announcement_title:"
           jq -r '.announcement_title' plan-dist-manifest.json
+          
+          # Check for warnings
+          if jq -e '._warning' plan-dist-manifest.json > /dev/null 2>&1; then
+            echo "Warning: $(jq -r '._warning' plan-dist-manifest.json)"
+            # Remove the warning field
+            jq 'del(._warning)' plan-dist-manifest.json > plan-dist-manifest-clean.json
+            mv plan-dist-manifest-clean.json plan-dist-manifest.json
+          fi
       
       - name: Upload updated dist-manifest.json
         uses: actions/upload-artifact@v4
