@@ -6,6 +6,9 @@ on:
 jobs:
   update-title:
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
     steps:
       - name: Download dist-manifest.json artifact
         uses: actions/download-artifact@v4
