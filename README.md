@@ -7,6 +7,36 @@ Clean up your useless GitHub forks.
 Just run `disfork` and follow the interactive prompts ✨
 
 ```
+❯ disfork
+
+🧹 DisFork - Clean up your useless GitHub forks
+
+ℹ Please install the GitHub App on your personal account:
+ℹ Visit: https://github.com/apps/disfork/installations/select_target
+ℹ After installation, press Enter to continue...
+
+→ Please visit: https://github.com/login/device
+→ And enter code: 38C3-1452
+
+Waiting for authorization...
+✓ Authorization successful!
+ℹ Found 14 fork repositories
+→ 2 are useless, selected by default
+
+✔ Select repositories to delete (Space to toggle, Enter to confirm)
+ℹ Selected 3 repositories for deletion:
+  - typed-sigterm/dokploy
+  - typed-sigterm/better-auth
+  - typed-sigterm/nitro
+
+✔ Are you sure you want to delete 3 repositories? · yes
+
+⏳ batch deletion cooldown period...
+Ready! [████████████████████████████████████████] 20s/20s
+✓ All done!
+```
+
+```
 ❯ disfork --help
 Clean up your useless GitHub forks
 
