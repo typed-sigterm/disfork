@@ -50,6 +50,7 @@ Options:
       --auto                           Skip interactive selection and delete all useless forks     
       --parallel <PARALLEL>            Number of parallel fetching tasks [default: 6]
       --dry-run                        Don't actually delete anything
+      --skip-cooldown                  Skip the cooldown period before deletion
   -h, --help                           Print help
   -V, --version                        Print version
 ```
