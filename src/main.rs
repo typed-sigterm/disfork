@@ -45,6 +45,10 @@ struct Args {
     /// Don't actually delete anything
     #[arg(long)]
     dry_run: bool,
+
+    /// Skip the cooldown period before deletion
+    #[arg(long)]
+    skip_cooldown: bool,
 }
 
 #[tokio::main]
@@ -184,8 +188,10 @@ async fn main() -> Result<()> {
     }
 
     // 冷静期
-    let cooldown = if is_batch { 20 } else { 5 };
-    cli.show_cooldown(cooldown, is_batch).await?;
+    if !args.skip_cooldown {
+        let cooldown = if is_batch { 20 } else { 5 };
+        cli.show_cooldown(cooldown, is_batch).await?;
+    }
 
     // 删除仓库
     let pb = cli.create_progress_bar(selected_repos.len() as u64, "Deleting")?;
