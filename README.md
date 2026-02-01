@@ -2,6 +2,10 @@
 
 Clean up your useless GitHub forks.
 
+## Installation
+
+See [release page](https://github.com/typed-sigterm/disfork/releases/latest).
+
 ## Usage
 
 Just run `disfork` and follow the interactive prompts ✨
