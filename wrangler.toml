@@ -1,0 +1,5 @@
+name = "disfork"
+compatibility_date = "2026-03-07"
+
+[build]
+command = "bun run build"
