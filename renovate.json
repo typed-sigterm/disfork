@@ -1,0 +1,3 @@
+{
+  "extends": ["github>typed-sigterm/renovate-config"]
+}
