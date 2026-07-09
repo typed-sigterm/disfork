@@ -17,7 +17,7 @@
     "tailwindcss": "^4.3.2"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^7.7.3",
+    "@antfu/eslint-config": "^9.1.0",
     "@typed-sigterm/eslint-config": "^1.7.1",
     "eslint": "^10.6.0",
     "typescript": "^6.0.3",

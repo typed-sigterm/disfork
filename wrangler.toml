@@ -1,0 +1,6 @@
+name = "disfork"
+preview_urls = true
+
+[route]
+pattern = "disfork.by-ts.top"
+custom_domain = true

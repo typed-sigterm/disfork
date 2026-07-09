@@ -17,7 +17,7 @@ export default defineNuxtConfig({
 
   ssr: false,
 
-  compatibilityDate: '2026-03-07',
+  compatibilityDate: '2026-07-09',
 
   runtimeConfig: {
     githubAppClientId: import.meta.env.DISFORK_GITHUB_APP_CLIENT_ID,
