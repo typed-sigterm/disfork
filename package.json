@@ -3,26 +3,31 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "dev": "portless",
+    "dev:port": "nuxt dev",
     "preview": "nuxt preview",
     "lint": "eslint .",
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
-    "@iconify-json/lucide": "^1.2.95",
-    "@iconify-json/simple-icons": "^1.2.72",
-    "@nuxt/ui": "^4.5.1",
-    "nuxt": "^4.3.1",
-    "tailwindcss": "^4.2.1"
+    "@iconify-json/lucide": "^1.2.116",
+    "@iconify-json/simple-icons": "^1.2.89",
+    "@nuxt/ui": "^4.9.0",
+    "nuxt": "^4.4.8",
+    "tailwindcss": "^4.3.2"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^7.7.0",
+    "@antfu/eslint-config": "^7.7.3",
     "@typed-sigterm/eslint-config": "^1.7.1",
-    "eslint": "^10.0.2",
-    "typescript": "^5.9.3",
-    "vue-tsc": "^3.2.5"
+    "eslint": "^10.6.0",
+    "typescript": "^6.0.3",
+    "vue-tsc": "^3.3.7"
   },
   "resolutions": {
-    "vite": "8.0.0-beta.16"
+    "vite": "^8.1.0"
+  },
+  "portless": {
+    "name": "disfork",
+    "script": "dev:port"
   }
 }

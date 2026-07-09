@@ -8,14 +8,14 @@ interface DeviceCodeResponse {
 }
 
 export default defineEventHandler(async () => {
-  return await $fetch<DeviceCodeResponse>('https://github.com/login/device-code', {
+  return await $fetch<DeviceCodeResponse>('https://github.com/login/device/code', {
     method: 'POST',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/x-www-form-urlencoded',
     },
-    body: new URLSearchParams({
+    query: {
       client_id: useRuntimeConfig().githubAppClientId,
-    }).toString(),
+    },
   });
 });
